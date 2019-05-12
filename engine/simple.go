@@ -1,12 +1,14 @@
 package engine
 
 import (
-	"crawler/fetcher"
 	"log"
 )
 
+type SimpleEngine struct {
+}
+
 // 任务执行函数
-func Run(seeds ...Request) {
+func (s SimpleEngine) Run(seeds ...Request) {
 	// 建立任务队列
 	var requests []Request
 	// 把传入的任务添加到任务队列
@@ -19,14 +21,13 @@ func Run(seeds ...Request) {
 
 		request := requests[0]
 		requests = requests[1:]
-		// 抓取网页内容
-		log.Printf("Fetching %s\n", request.Url)
-		content, err := fetcher.Fetch(request.Url)
+
+		// 抓取任务
+		parseResult, err := worker(request)
 		if err != nil {
-			log.Printf("Fetch error, Url: %s %v\n", request.Url, err)
 			continue
 		}
-		parseResult := request.ParseFunc(content)
+
 		// 把解析出的请求添加到请求队列
 		requests = append(requests, parseResult.Requests...)
 
