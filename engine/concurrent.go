@@ -1,6 +1,8 @@
 package engine
 
-import "log"
+import (
+	"log"
+)
 
 // 并发引擎
 type ConcurrendEngine struct {
@@ -12,17 +14,18 @@ type ConcurrendEngine struct {
 type Scheduler interface {
 	Submit(request Request) // 提交任务
 	ConfigMasterWorkerChan(chan Request)
+	WorkerReady(w chan Request)
+	Run()
 }
 
 func (e *ConcurrendEngine) Run(seeds ...Request) {
 
-	in := make(chan Request)
 	out := make(chan ParseResult)
-	e.Scheduler.ConfigMasterWorkerChan(in)
+	e.Scheduler.Run()
 
 	// 创建 goruntine
 	for i := 0; i < e.WorkerCount; i++ {
-		createWorker(in, out)
+		createWorker(out, e.Scheduler)
 	}
 
 	// engine把请求任务提交给 Scheduler
@@ -46,9 +49,11 @@ func (e *ConcurrendEngine) Run(seeds ...Request) {
 	}
 }
 
-func createWorker(in chan Request, out chan ParseResult) {
+func createWorker(out chan ParseResult, s Scheduler) {
+	in := make(chan Request)
 	go func() {
 		for {
+			s.WorkerReady(in) // 告诉调度器任务空闲
 			request := <-in
 			result, err := worker(request)
 			if err != nil {
