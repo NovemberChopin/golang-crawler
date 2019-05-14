@@ -7,6 +7,8 @@ import (
 
 var cityRe = regexp.MustCompile(`<a href="(http://album.zhenai.com/u/[0-9]+)"[^>]*>([^<]+)</a>`)
 var sexRe = regexp.MustCompile(`<td width="180"><span class="grayL">性别：</span>([^<]+)</td>`)
+var cityUrlRe = regexp.MustCompile(
+	`href="(http://www.zhenai.com/zhenghun/[^"]+)"`)
 
 // 城市页面用户解析器
 func ParseCity(bytes []byte) engine.ParseResult {
@@ -25,6 +27,15 @@ func ParseCity(bytes []byte) engine.ParseResult {
 			ParseFunc: func(bytes []byte) engine.ParseResult {
 				return ParseProfile(bytes, name, gender)
 			},
+		})
+	}
+
+	// 添加更多城市
+	matches := cityUrlRe.FindAllSubmatch(bytes, -1)
+	for _, m := range matches {
+		result.Requests = append(result.Requests, engine.Request{
+			Url:       string(m[1]),
+			ParseFunc: ParseCity,
 		})
 	}
 	return result
