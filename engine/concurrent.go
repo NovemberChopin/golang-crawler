@@ -12,10 +12,13 @@ type ConcurrendEngine struct {
 
 // 任务调度器
 type Scheduler interface {
+	ReadyNotifier
 	Submit(request Request) // 提交任务
-	ConfigMasterWorkerChan(chan Request)
-	WorkerReady(w chan Request)
+	WorkerChan() chan Request
 	Run()
+}
+type ReadyNotifier interface {
+	WorkerReady(chan Request)
 }
 
 func (e *ConcurrendEngine) Run(seeds ...Request) {
@@ -25,7 +28,8 @@ func (e *ConcurrendEngine) Run(seeds ...Request) {
 
 	// 创建 goruntine
 	for i := 0; i < e.WorkerCount; i++ {
-		createWorker(out, e.Scheduler)
+		// 任务是每个 worker 一个 channel 还是 所有 worker 共用一个 channel 由WorkerChan 来决定
+		createWorker(e.Scheduler.WorkerChan(), out, e.Scheduler)
 	}
 
 	// engine把请求任务提交给 Scheduler
@@ -49,11 +53,10 @@ func (e *ConcurrendEngine) Run(seeds ...Request) {
 	}
 }
 
-func createWorker(out chan ParseResult, s Scheduler) {
-	in := make(chan Request)
+func createWorker(in chan Request, out chan ParseResult, ready ReadyNotifier) {
 	go func() {
 		for {
-			s.WorkerReady(in) // 告诉调度器任务空闲
+			ready.WorkerReady(in) // 告诉调度器任务空闲
 			request := <-in
 			result, err := worker(request)
 			if err != nil {
