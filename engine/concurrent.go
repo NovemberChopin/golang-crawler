@@ -1,13 +1,10 @@
 package engine
 
-import (
-	"log"
-)
-
 // 并发引擎
 type ConcurrendEngine struct {
-	Scheduler   Scheduler
-	WorkerCount int
+	Scheduler   Scheduler // 任务调度器
+	WorkerCount int       // 并发任务数量
+	ItemChan    chan Item // 数据保存 channel
 }
 
 // 任务调度器
@@ -37,17 +34,20 @@ func (e *ConcurrendEngine) Run(seeds ...Request) {
 		e.Scheduler.Submit(request)
 	}
 
-	itemCount := 0
 	for {
 		// 接受 Worker 的解析结果
 		result := <-out
 		for _, item := range result.Items {
-			log.Printf("Got item: #%d: %v\n", itemCount, item)
-			itemCount++
+			// 当抓取一组数据后，进行保存
+			go func() { e.ItemChan <- item }()
 		}
 
 		// 然后把 Worker 解析出的 Request 送给 Scheduler
 		for _, request := range result.Requests {
+			// 如果重复，则不提交任务
+			if isDuplicate(request.Url) {
+				continue
+			}
 			e.Scheduler.Submit(request)
 		}
 	}
@@ -65,4 +65,16 @@ func createWorker(in chan Request, out chan ParseResult, ready ReadyNotifier) {
 			out <- result
 		}
 	}()
+}
+
+// 存放已经获取的所有Url
+var visitedUrls = make(map[string]bool)
+
+// 判断Url是否重复
+func isDuplicate(url string) bool {
+	if visitedUrls[url] {
+		return true
+	} else {
+		return false
+	}
 }
