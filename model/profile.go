@@ -3,8 +3,6 @@ package model
 import "encoding/json"
 
 type Profile struct {
-	Url      string
-	Id       string
 	Name     string
 	Gender   string
 	Age      int
@@ -15,7 +13,7 @@ type Profile struct {
 	Address  string
 }
 
-func FormJsonObj(obj interface{}) (Profile, error) {
+func FromJsonObj(obj interface{}) (Profile, error) {
 	var profile Profile
 	string, err := json.Marshal(obj)
 	if err != nil {
