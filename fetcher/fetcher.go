@@ -37,12 +37,12 @@ func Fetch(url string) ([]byte, error) {
 
 	// 把网页转为utf-8编码
 	bodyReader := bufio.NewReader(resp.Body)
-	e := determineEncoding(bodyReader)
+	e := DetermineEncoding(bodyReader)
 	utf8Reader := transform.NewReader(bodyReader, e.NewDecoder())
 	return ioutil.ReadAll(utf8Reader)
 }
 
-func determineEncoding(r *bufio.Reader) encoding.Encoding {
+func DetermineEncoding(r *bufio.Reader) encoding.Encoding {
 	bytes, err := r.Peek(1024)
 	if err != nil {
 		log.Printf("Fetcher error %v\n", err)

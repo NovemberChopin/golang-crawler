@@ -2,7 +2,7 @@ package parser
 
 import (
 	"crawler/engine"
-	"crawler/model"
+	"crawler/zhenai/model"
 	"regexp"
 	"strconv"
 )
@@ -34,7 +34,16 @@ func ParseProfile(bytes []byte, name string, gender string, url string) engine.P
 	profile.Marriage = extractString(bytes, marriageRe)
 	profile.Address = extractString(bytes, addressRe)
 
+	//items := []engine.Item{
+	//	{
+	//		Url:     url,
+	//		Type:    "zhenai",
+	//		Id:      extractString([]byte(url), idUrlRe),
+	//		Payload: profile,
+	//	},
+	//}
 	result := engine.ParseResult{
+		//Items: []interface{}{items},
 		Items: []engine.Item{
 			{
 				Url:     url,

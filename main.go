@@ -4,7 +4,7 @@ import (
 	"crawler/engine"
 	"crawler/persist"
 	"crawler/scheduler"
-	"crawler/zhenai/parser"
+	zhipin "crawler/zhipin/parser"
 )
 
 func main() {
@@ -17,13 +17,13 @@ func main() {
 	e := engine.ConcurrendEngine{
 		Scheduler: &scheduler.QueuedScheduler{},
 		//Scheduler:   &scheduler.SimpleScheduler{},
-		WorkerCount: 30,
+		WorkerCount: 5,
 		ItemChan:    itemChan,
 	}
 	// 配置抓取任务信息
 	e.Run(engine.Request{
-		Url:       "http://www.zhenai.com/zhenghun",
-		ParseFunc: parser.ParseCityList,
+		Url:       "https://www.zhipin.com/c101120200/?ka=sel-city-101120200",
+		ParseFunc: zhipin.ParseBusinessList,
 	})
 
 	// 爬取单个城市

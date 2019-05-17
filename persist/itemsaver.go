@@ -74,7 +74,7 @@ func mongo_save(session *mgo.Session, dbName string, item engine.Item) error {
 		return errors.New("must supply Type")
 	}
 	c := session.DB(dbName).C(item.Type)
-	err := c.Insert(item)
+	err := c.Insert(item.Payload)
 	if err != nil {
 		log.Fatal(err)
 	}

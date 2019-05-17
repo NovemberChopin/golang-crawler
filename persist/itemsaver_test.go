@@ -3,7 +3,7 @@ package persist
 import (
 	"context"
 	"crawler/engine"
-	"crawler/model"
+	"crawler/zhenai/model"
 	"encoding/json"
 	"fmt"
 	"gopkg.in/mgo.v2"
