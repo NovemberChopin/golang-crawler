@@ -4,7 +4,9 @@ import (
 	"crawler/engine"
 	"crawler/zhipin/model"
 	"crawler/zhipin/util"
+	"math/rand"
 	"regexp"
+	"time"
 )
 
 var nameRe = regexp.MustCompile(`<div class="job-title">([^<]+)</div>`)
@@ -38,6 +40,9 @@ var nextPageRe = regexp.MustCompile(
 
 // 解析每个 area 的职位
 func ParsePositionList(bytes []byte) engine.ParseResult {
+	// 随机休眠
+	time.Sleep(time.Duration(rand.Intn(10)) * time.Millisecond)
+
 	content := util.RemoveSpace(bytes)
 	position := model.Position{}
 
@@ -68,18 +73,19 @@ func ParsePositionList(bytes []byte) engine.ParseResult {
 
 		items = append(items, engine.Item{
 			Url:     "",
-			Type:    "zhipin",
+			Type:    "zhipin_qingdao",
 			Id:      "",
 			Payload: position,
 		})
 	}
 
 	// 请求下一页
-	requests = append(requests, engine.Request{
-		Url:       "http://www.zhipin.com" + string(nextPageUrl[1]),
-		ParseFunc: ParseAreaList,
-	})
-
+	if len(nextPageUrl) != 0 {
+		requests = append(requests, engine.Request{
+			Url:       "http://www.zhipin.com" + string(nextPageUrl[1]),
+			ParseFunc: ParsePositionList,
+		})
+	}
 	// 本页解析数据
 	result := engine.ParseResult{
 		Items:    items,

@@ -22,8 +22,8 @@ func main() {
 	}
 	// 配置抓取任务信息
 	e.Run(engine.Request{
-		Url:       "https://www.zhipin.com/c101120200/?ka=sel-city-101120200",
-		ParseFunc: zhipin.ParseBusinessList,
+		Url:       "https://www.zhipin.com/c101010100/a_%E4%B8%8A%E5%9C%B0-b_%E6%B5%B7%E6%B7%80%E5%8C%BA/?ka=sel-area-1",
+		ParseFunc: zhipin.ParsePositionList,
 	})
 
 	// 爬取单个城市

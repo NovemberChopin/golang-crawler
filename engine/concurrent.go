@@ -39,15 +39,17 @@ func (e *ConcurrendEngine) Run(seeds ...Request) {
 		result := <-out
 		for _, item := range result.Items {
 			// 当抓取一组数据后，进行保存
-			go func() { e.ItemChan <- item }()
+			go func(item2 Item) {
+				e.ItemChan <- item2
+			}(item)
 		}
 
 		// 然后把 Worker 解析出的 Request 送给 Scheduler
 		for _, request := range result.Requests {
 			// 如果重复，则不提交任务
-			if isDuplicate(request.Url) {
-				continue
-			}
+			//if isDuplicate(request.Url) {
+			//	continue
+			//}
 			e.Scheduler.Submit(request)
 		}
 	}
