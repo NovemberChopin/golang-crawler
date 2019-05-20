@@ -4,9 +4,7 @@ import (
 	"crawler/engine"
 	"crawler/zhipin/model"
 	"crawler/zhipin/util"
-	"math/rand"
 	"regexp"
-	"time"
 )
 
 var nameRe = regexp.MustCompile(`<div class="job-title">([^<]+)</div>`)
@@ -40,8 +38,15 @@ var nextPageRe = regexp.MustCompile(
 
 // 解析每个 area 的职位
 func ParsePositionList(bytes []byte) engine.ParseResult {
-	// 随机休眠
-	time.Sleep(time.Duration(rand.Intn(10)) * time.Millisecond)
+
+	//defer func() {
+	//	err := recover()
+	//	if err, ok := err.(error); ok {
+	//		log.Println("Error occurred:", err)
+	//	} else {
+	//		panic(fmt.Sprintf("I do't know what to do %v", err))
+	//	}
+	//}()
 
 	content := util.RemoveSpace(bytes)
 	position := model.Position{}
@@ -58,25 +63,27 @@ func ParsePositionList(bytes []byte) engine.ParseResult {
 	items := []engine.Item{}
 	requests := []engine.Request{}
 
-	for k, item := range nameMatch {
-		position.Name = string(item[1])
-		position.Payment = string(paymentMatch[k][1])
-		position.Address = string(requireMatch[k][1])
-		position.Experience = string(requireMatch[k][2])
-		position.Education = string(requireMatch[k][3])
-		position.PosiUrl = "http://www.zhipin.com" + string(positionUrl[k][1])
+	if len(nameMatch) == len(requireMatch) {
+		for k, item := range nameMatch {
+			position.Name = string(item[1])
+			position.Payment = string(paymentMatch[k][1])
+			position.Address = string(requireMatch[k][1])
+			position.Experience = string(requireMatch[k][2])
+			position.Education = string(requireMatch[k][3])
+			position.PosiUrl = "http://www.zhipin.com" + string(positionUrl[k][1])
 
-		position.FimeUrl = "http://www.zhipin.com" + string(fimeNameMatch[k][1]) + "?ka=" + string(fimeNameMatch[k][2])
-		position.FirmName = string(fimeNameMatch[k][3])
+			position.FimeUrl = "http://www.zhipin.com" + string(fimeNameMatch[k][1]) + "?ka=" + string(fimeNameMatch[k][2])
+			position.FirmName = string(fimeNameMatch[k][3])
 
-		position.FirmType, position.FirmFinancing, position.FirmSize = extractFirmMsg(submatch[k])
+			position.FirmType, position.FirmFinancing, position.FirmSize = extractFirmMsg(submatch[k])
 
-		items = append(items, engine.Item{
-			Url:     "",
-			Type:    "zhipin_qingdao",
-			Id:      "",
-			Payload: position,
-		})
+			items = append(items, engine.Item{
+				Url:     "",
+				Type:    "zhipin_jinan",
+				Id:      "",
+				Payload: position,
+			})
+		}
 	}
 
 	// 请求下一页

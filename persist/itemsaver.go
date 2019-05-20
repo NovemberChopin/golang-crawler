@@ -17,10 +17,10 @@ func ItemSaver(index string) (chan engine.Item, error) {
 	//}
 
 	// mongodb connect
-	session, err := mgo.Dial("localhost:27017")
-	if err != nil {
-		panic(err)
-	}
+	//session, err := mgo.Dial("localhost:27017")
+	//if err != nil {
+	//	panic(err)
+	//}
 
 	out := make(chan engine.Item)
 	go func() {
@@ -36,13 +36,13 @@ func ItemSaver(index string) (chan engine.Item, error) {
 			//err := es_save(client, index, item)
 
 			// Save data in mongodb
-			err := mongo_save(session, index, item)
-
-			if err != nil {
-				// if have err, ignore it
-				log.Printf("Item Saver: error, saving item %v: %v",
-					item, err)
-			}
+			//err := mongo_save(session, index, item)
+			//
+			//if err != nil {
+			//	// if have err, ignore it
+			//	log.Printf("Item Saver: error, saving item %v: %v",
+			//		item, err)
+			//}
 		}
 	}()
 	return out, nil

@@ -1,6 +1,9 @@
 package scheduler
 
-import "crawler/engine"
+import (
+	"crawler/engine"
+	"fmt"
+)
 
 // 使用队列来调度任务
 
@@ -48,6 +51,7 @@ func (s *QueuedScheduler) Run() {
 			case activeWorker <- activeRequest: // 当请求队列和认读队列都不为空时，给任务队列分配任务
 				requestQ = requestQ[1:]
 				workerQ = workerQ[1:]
+				fmt.Printf("requestQ: %d, workerQ: %d\n", len(requestQ), len(workerQ))
 			}
 		}
 	}()
