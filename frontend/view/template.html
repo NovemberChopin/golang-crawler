@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>珍爱网数据查询</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <script src="./js/bootstrap.min.js"></script>
+    <style>
+        .header {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <form class="form-horizontal header" method="get">
+          <div class="form-group">
+            <div class="col-sm-5 col-sm-offset-3">
+              <input type="text" class="form-control" value="{{.Query}}" name="q">
+            </div>
+              <div class="col-sm-offset-8">
+              <button type="submit" class="btn btn-primary">查询</button>
+            </div>
+          </div>
+        </form>
+        <hr />
+        <div class="row">
+        <h5>共为你找到相关结果约为{{.Hits}}个。显示从{{.Start}}起共{{len .Items}}个</h5>
+        <table class="table table-hover">
+           <thead>
+              <tr>
+                  <th>昵称</th>
+                  <th>性别</th>
+                  <th>年龄</th>
+                  <th>身高（cm）</th>
+                  <th>体重（kg）</th>
+                  <th>收入</th>
+                  <th>婚姻状况</th>
+                  <th>地址</th>
+              </tr>
+           </thead>
+           <tbody>
+           {{range .Items}}
+              <tr class="success">
+                  <td><a href="{{.Url}}">{{.Payload.Name}}</a></td>
+                  {{with .Payload}}
+                  <td>{{.Gender}}</td>
+                  <td>{{.Age}}</td>
+                  <td>{{.Height}}</td>
+                  <td>{{.Weight}}</td>
+                  <th>{{.Income}}</th>
+                  <th>{{.Marriage}}</th>
+                  <th>{{.Address}}</th>
+                  {{end}}
+              </tr>
+           {{else}}
+           <div>没有找到相关用户</div>
+           {{end}}
+        </table>
+            <div align="middle">
+                {{if ge .PrevPage 0}}
+                    <a type="button" href="search?q={{.Query}}&from={{.PrevPage}}">上一页</a>
+                {{end}}
+                <a type="button" href="search?q={{.Query}}&from={{.NextPage}}">下一页</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
